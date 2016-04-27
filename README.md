@@ -41,6 +41,9 @@ Servers are available on port and filters
          "Port":80,
          "Priority":1,             // optional
          "Weight":2                // optional
+      },
+      { "Target":"127.0.0.1",
+        "Port":8080
       }]
    }
 }
