@@ -15,6 +15,7 @@ type ApiV1server struct {
 	Upstreams  map[string]*core.Upstream `json:"upstreams"`
 }
 
+
 func ApiV1serverNew(srv *core.Server) ApiV1server {
 	return ApiV1server{
 		srv.Address(),
@@ -44,6 +45,45 @@ func apiServerGet(c *gin.Context) {
 
 	c.JSON(http.StatusOK, ApiV1serverNew(srv))
 }
+
+func apiServerPost(c *gin.Context) {
+
+	var v1Server ApiV1server
+	var err error
+	if err = c.BindJSON(&v1Server); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf("Json Format: %s.", err),
+		})
+	}
+
+	core.InMemoryRepository.NewServer(v1Server.Address)
+	core.InMemoryRepository.SetUpstreams(v1Server.Address, v1Server.Upstreams)
+	core.InMemoryRepository.PutFilter(v1Server.Address, v1Server.Filter)
+	c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
+	return
+}
+
+func apiServerDelete(c *gin.Context) {
+
+	var adr core.Address
+	var sent bool
+	if adr, sent = getAddressFromParam(c); sent {
+		return
+	}
+	cnf := core.InMemoryRepository.Get()
+
+	var ok  bool
+
+	if _, ok = cnf.Server(adr); !ok {
+		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
+		return
+	}
+
+	core.InMemoryRepository.RemoveServer(adr)
+	c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
+	return
+}
+
 
 func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bool) {
 

@@ -52,7 +52,7 @@ func apiServerPostFilter(c *gin.Context) {
 	var err error
 	if err = c.BindJSON(&filter); err == nil {
 		core.InMemoryRepository.PutFilter(adr, filter)
-		c.JSON(http.StatusNoContent, nil)
+		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 		return
 	}
 

@@ -42,10 +42,10 @@ func doReverseProxy(u *Upstream, w http.ResponseWriter, req *http.Request) {
 	log.WithFields(log.Fields{
 		"req":  req,
 		"upstream": u,
-	}).Info("request", req.RequestURI,req.Host, req.Proto)
+	}).Info("request:", req.RequestURI, req.Host, req.Proto)
 
-	scheme := req.URL.Scheme
-	url, err := u.toUrl(scheme)
+
+	url, err := u.toUrl(req.URL.Scheme)
 	if nil != err {
 		log.WithFields(log.Fields{
 			"where":  "reverse",

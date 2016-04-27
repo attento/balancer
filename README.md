@@ -61,43 +61,44 @@ Servers are available on port and filters
 
 Build
 
-`docker build -t balancer .`
+`docker build -t balancer . && docker run -p 8000:80 -p 9123:9123  balancer`
 
-Run
+## Simple usage:
 
-`docker run -p 8000:80 -p 9123:9123  balancer`
+Then just use the API like `curl localhost:9123`
 
-then just use the API like `curl localhost:9123`
+1. Store a new Upstream binding :8080 `curl -X POST  localhost:9123/server --data '{"address":":8080","upstreams":{"www.google.com:80":{"Target":"www.google.com","Port":80}}}'`
+
+2. View the server: `curl localhost:9123/server/:8080` 
+
+3. Use it! `curl  localhost:8080` The proxy should response with the google homepage...
 
 ## API
 
-### Config `GET /`
+##### Config
 
-Return the whole configuration.
+`GET /` Return the whole configuration.
 
-### Servers 
+##### Servers 
 
-#### `GET /server/{address}` 
+`GET /server/{address}` Return the Server Object
+`DELETE /server/{address}`
 
-Return the Server Object
+#### Upstream 
 
-#### Upstream `GET /server/:address/upstream/{target}-{port}` 
+- `GET /server/:address/upstream/{target}-{port}`  Return the Upstream object
 
-Return the Upstream object
-
-#### Upstream `POST|PUT /server/{address}/upstream/{target}-{port}` 
-
-Create a new Object Stream or Updated it
+- `POST|PUT /server/{address}/upstream/{target}-{port}` Create a new Object Stream or Updated it
 
 Request body: `{"Target":"127.0.0.1","Port":8080,"Priority":1,"Weight":2}`
 
-#### Filter `GET /server/{address}/filter`
+- `DELETE /server/{address}/upstream/{target}-{port}` Delete
 
-Get the Server Filter
+#### Filter 
 
-#### Filter `POST|PUT /server/{address}/filter`
+- `GET /server/{address}/filter` Get the Server Filter
 
-Create or Update the filter
+- `POST|PUT /server/{address}/filter` Create or Update the filter
 
 Request body `{"Hosts":null,"Schemes":["",""],"PathPrefix":""}`
 

@@ -3,6 +3,7 @@ package api
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/attento/balancer/core"
+	"net/http"
 )
 
 type ApiV1Config struct {
@@ -29,5 +30,5 @@ func apiConfigGet(c *gin.Context) {
 	cnf := core.InMemoryRepository.Get()
 	cc := ApiV1ConfigNew(cnf)
 
-	c.JSON(200, cc)
+	c.JSON(http.StatusOK, cc)
 }

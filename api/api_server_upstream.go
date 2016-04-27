@@ -29,7 +29,7 @@ func apiServerPostUpstream(c *gin.Context) {
 
 	if err = c.BindJSON(&bdUps); err == nil {
 		core.InMemoryRepository.AddUpstream(adr, &bdUps)
-		c.JSON(http.StatusNoContent, nil)
+		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 		return
 	}
 

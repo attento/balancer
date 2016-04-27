@@ -14,6 +14,11 @@ type Upstream struct {
 }
 
 func (u *Upstream) toUrl(scheme string) (url *url.URL, err error) {
+
+	if scheme == "" {
+		scheme = "http"
+	}
+
 	return url.Parse(scheme+"://"+u.Target+":"+ strconv.Itoa(int(u.Port)))
 }
 
@@ -45,6 +50,10 @@ func (s *Server) Filter() Filter {
 	return s.filter
 }
 
+func (s *Server) putFilter(f Filter) {
+	s.filter = f
+}
+
 func (s *Server) Upstream(target string, port uint16) (k *Upstream, ok bool) {
 	k, ok = s.upstreams[createUpstreamKey(target, port)]
 	return
@@ -68,6 +77,16 @@ func (s *Server) addUpstream(u *Upstream) {
 	s.upstreams[createUpstreamKey(u.Target, u.Port)] = u
 }
 
+func (s *Server) setUpstreams(us map[string]*Upstream) {
+
+	if s.upstreams == nil {
+		s.upstreams = make(map[string]*Upstream)
+	}
+
+	s.upstreams = us
+}
+
+
 func (s *Server) removeUpstream(target string, port uint16) {
 	if _, ok := s.Upstream(target, port); ok {
 		delete(s.upstreams, createUpstreamKey(target, port))
@@ -81,7 +100,7 @@ func Create() Config {
 	return Config{}
 }
 
-func (c Config) newServer(a Address) {
+func (c Config) NewServer(a Address) {
 	create := false
 	if _, ok := c[a]; !ok {
 		create = true
@@ -97,24 +116,21 @@ func (c Config) newServer(a Address) {
 // eg. []string{}, [2]string{}, ""
 func (c Config) PutFilterProperties(address Address, hosts []string, schemes [2]string, prefix string) {
 
-	if _, ok := c[address]; !ok {
-		c.newServer(address)
-	}
-	c[address].filter = Filter{hosts, schemes, prefix}
+	c.PutFilter(address, Filter{hosts, schemes, prefix})
 }
 
 
 func (c Config) PutFilter(address Address, f Filter) {
 
 	if _, ok := c[address]; !ok {
-		c.newServer(address)
+		c.NewServer(address)
 	}
-	c[address].filter = f
+	c[address].putFilter(f)
 }
 
 
 func (c Config) RemoveServer(address Address) {
-	if _, ok := c[address]; !ok {
+	if _, ok := c[address]; ok {
 		go listeners.onConfigUpdateRemovedAddress(address)
 		delete(c, address)
 	}
@@ -123,7 +139,7 @@ func (c Config) RemoveServer(address Address) {
 func (c Config) AddUpstreamProperty(address Address, target string, port uint16, priority uint16, weight uint16) {
 
 	if _, ok := c[address]; !ok {
-		c.newServer(address)
+		c.NewServer(address)
 	}
 
 	c[address].addUpstreamProperty(target, port, priority, weight)
@@ -132,11 +148,21 @@ func (c Config) AddUpstreamProperty(address Address, target string, port uint16,
 func (c Config) AddUpstream(address Address, u *Upstream) {
 
 	if _, ok := c[address]; !ok {
-		c.newServer(address)
+		c.NewServer(address)
 	}
 
 	c[address].addUpstream(u)
 }
+
+func (c Config) SetUpstreams(address Address, us map[string]*Upstream) {
+
+	if _, ok := c[address]; !ok {
+		c.NewServer(address)
+	}
+
+	c[address].setUpstreams(us)
+}
+
 
 func (c Config) Server(address Address) (s *Server, ok bool){
 	s, ok = c[address];
