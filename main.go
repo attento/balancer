@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/liuggio/balancer/cli"
+	"github.com/attento/balancer/cli"
 )
 
 func main() {

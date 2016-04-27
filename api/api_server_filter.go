@@ -2,7 +2,7 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/liuggio/balancer/core"
+	"github.com/attento/balancer/core"
 	"net/http"
 	"fmt"
 )

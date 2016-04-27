@@ -1,7 +1,7 @@
 package cli
 
 import "github.com/codegangsta/cli"
-import "github.com/liuggio/balancer/api"
+import "github.com/attento/balancer/api"
 
 func run(c *cli.Context) {
 	backend := ":9123"

@@ -3,7 +3,7 @@ package api
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/liuggio/balancer/core"
+	"github.com/attento/balancer/core"
 	"github.com/gin-gonic/gin"
 	"net/http/httptest"
 	"net/http"
