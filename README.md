@@ -44,7 +44,15 @@ Servers are available on port and filters
       },
       { "Target":"127.0.0.1",
         "Port":8080
-      }]
+       }]
+   },
+   "fallbacks":{
+     "127.0.0.1-80": { 
+       "Target":"127.0.0.1",
+       "Port":80,
+       "Priority":1,             // optional
+       "Weight":2                // optional
+     }
    }
 }
 ```

@@ -1,6 +1,6 @@
 package core
-import "math/rand"
 
+import "math/rand"
 
 type ElectionAlgorithm func(u map[string]*Upstream) (*Upstream, error)
 
@@ -21,11 +21,6 @@ var RoundRobin = func (u map[string]*Upstream) (*Upstream, error) {
 }
 
 var LeastConn = func (u map[string]*Upstream) (*Upstream, error) {
-	// @todo here
-	return nil, nil
-}
-
-var leastConn = func (u map[string]*Upstream) (*Upstream, error) {
 	// @todo here
 	return nil, nil
 }

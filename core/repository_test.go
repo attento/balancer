@@ -9,7 +9,7 @@ func TestInMemoryRepositoryShouldPutAndGet(t *testing.T) {
 	assertFilter := Filter{[]string{"www.google.com"}, [2]string{"http"}, ""}
 
 	cnf := Create()
-	cnf.PutFilter(":80", []string{"www.google.com"}, [2]string{"http"}, "")
+	cnf.PutFilterProperties(":80", []string{"www.google.com"}, [2]string{"http"}, "")
 
 	InMemoryRepository.Put(cnf)
 	cnfg := InMemoryRepository.Get()
