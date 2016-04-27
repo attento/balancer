@@ -15,7 +15,7 @@ func TestConfigShouldResponse200(t *testing.T) {
 	routes(r)
 
 	cnf := core.Create()
-	cnf.AddUpstreamProperty(":80", "127.0.0.1", 80, 1, 2)
+	cnf.AddUpstreamProperty(":8080", "127.0.0.1", 8080, 1, 2)
 
 	core.InMemoryRepository.Put(cnf)
 
@@ -24,7 +24,7 @@ func TestConfigShouldResponse200(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, 200)
-	assert.Equal(t, w.Body.String(), "{\"servers\":[{\"address\":\":80\",\"filter\":{\"Hosts\":null,\"Schemes\":[\"\",\"\"],\"PathPrefix\":\"\"},\"upstreams\":{\"127.0.0.1:80\":{\"Target\":\"127.0.0.1\",\"Port\":80,\"Priority\":1,\"Weight\":2}}}]}\n")
+	assert.Equal(t, w.Body.String(), "{\"servers\":[{\"address\":\":8080\",\"filter\":{\"Hosts\":null,\"Schemes\":[\"\",\"\"],\"PathPrefix\":\"\"},\"upstreams\":{\"127.0.0.1:8080\":{\"Target\":\"127.0.0.1\",\"Port\":8080,\"Priority\":1,\"Weight\":2}}}]}\n")
 }
 
 func TestConfigShouldNeverResponse404(t *testing.T) {

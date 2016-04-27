@@ -29,7 +29,7 @@ type Server struct {
 	upstreams  map[string]*Upstream
 }
 
-func NewServer(a Address) *Server {
+func newServer(a Address) *Server {
 	return &Server{address: a}
 }
 
@@ -81,20 +81,33 @@ func Create() Config {
 	return Config{}
 }
 
+func (c Config) newServer(a Address) {
+	create := false
+	if _, ok := c[a]; !ok {
+		create = true
+	}
+	s := newServer(a)
+	c[a] = s
+	if create {
+		go listeners.onConfigCreatedNewAddress(a, s)
+	}
+}
+
 // Put with empty values if you don't need filter
 // eg. []string{}, [2]string{}, ""
 func (c Config) PutFilterProperties(address Address, hosts []string, schemes [2]string, prefix string) {
 
 	if _, ok := c[address]; !ok {
-		c[address] = NewServer(address)
+		c.newServer(address)
 	}
 	c[address].filter = Filter{hosts, schemes, prefix}
 }
 
+
 func (c Config) PutFilter(address Address, f Filter) {
 
 	if _, ok := c[address]; !ok {
-		c[address] = NewServer(address)
+		c.newServer(address)
 	}
 	c[address].filter = f
 }
@@ -102,6 +115,7 @@ func (c Config) PutFilter(address Address, f Filter) {
 
 func (c Config) RemoveServer(address Address) {
 	if _, ok := c[address]; !ok {
+		go listeners.onConfigUpdateRemovedAddress(address)
 		delete(c, address)
 	}
 }
@@ -109,7 +123,7 @@ func (c Config) RemoveServer(address Address) {
 func (c Config) AddUpstreamProperty(address Address, target string, port uint16, priority uint16, weight uint16) {
 
 	if _, ok := c[address]; !ok {
-		c[address] = NewServer(address)
+		c.newServer(address)
 	}
 
 	c[address].addUpstreamProperty(target, port, priority, weight)
@@ -118,14 +132,13 @@ func (c Config) AddUpstreamProperty(address Address, target string, port uint16,
 func (c Config) AddUpstream(address Address, u *Upstream) {
 
 	if _, ok := c[address]; !ok {
-		c[address] = NewServer(address)
+		c.newServer(address)
 	}
 
 	c[address].addUpstream(u)
 }
 
 func (c Config) Server(address Address) (s *Server, ok bool){
-
 	s, ok = c[address];
 	return
 }

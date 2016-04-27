@@ -9,7 +9,7 @@ import (
 func TestShouldCreateAServer(t *testing.T) {
 
 	s :=  &Server{}
-	s.addUpstreamProperty("127.0.0.1", 80, 1, 2)
+	s.addUpstreamProperty("127.0.0.1", 8080, 1, 2)
 
 	go listeners.onConfigCreatedNewAddress(":8000", s)
 

@@ -67,6 +67,6 @@ func (l Listeners) onConfigCreatedNewAddress(a Address, s *Server) {
 
 // onConfigUpdateRemovedAddress
 func (l Listeners) onConfigUpdateRemovedAddress(a Address) {
-	log.Info("Stopping in 10 seconds")
-	l[a].Stop(10 * time.Second)
+	log.Info("Dry Running ... stopping in 5 seconds")
+	l[a].Stop(5 * time.Second)
 }

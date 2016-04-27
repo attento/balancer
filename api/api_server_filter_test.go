@@ -17,13 +17,13 @@ func TestOnFilterShouldResponse204(t *testing.T) {
 
 	cnf := core.Create()
 	f := core.Filter{Schemes: [2]string{"http"}}
-	cnf.PutFilter(core.Address(":80"), f)
+	cnf.PutFilter(core.Address(":8383"), f)
 	core.InMemoryRepository.Put(cnf)
 
 	w := httptest.NewRecorder()
 
 	var jsonStr = []byte(`{"Hosts":null,"Schemes":["",""],"PathPrefix":""}`)
-	req, _ := http.NewRequest("POST", "/server/:80/filter", bytes.NewBuffer(jsonStr))
+	req, _ := http.NewRequest("POST", "/server/:8383/filter", bytes.NewBuffer(jsonStr))
 	req.Header.Set("Content-Type", "application/json")
 
 	r.ServeHTTP(w, req)
