@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/attento/balancer/app"
 	"time"
+	log "github.com/Sirupsen/logrus"
 )
 
 type Api struct {
@@ -58,7 +59,7 @@ func Run(addr string, isDebug bool) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	a := New(10*time.Second)
+	a := New(3*time.Second)
 
 	r := gin.Default()
 
@@ -66,6 +67,6 @@ func Run(addr string, isDebug bool) {
 	serverRoutes(r, a)
 	serverUpstreamRoutes(r, a)
 	serverFilterRoutes(r, a)
-
-	r.Run(addr)
+	log.Info("Started API Server on:", addr)
+	log.Error(r.Run(addr))
 }

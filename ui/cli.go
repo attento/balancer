@@ -13,7 +13,7 @@ import (
 func Run() {
 	app := cli.NewApp()
 	app.Name = path.Base(os.Args[0])
-	app.Usage = "find destination hiding itself"
+	app.Usage = "use 'r' to run the daemon"
 
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{

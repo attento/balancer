@@ -67,7 +67,7 @@ Build
 
 Then just use the API like `curl localhost:9123`
 
-1. Store a new Upstream binding :8080 `curl -X POST  localhost:9123/server --data '{"address":":8080","upstreams":{"www.google.com:80":{"Target":"www.google.com","Port":80}}}'`
+1. Store a new Upstream binding :8080 `curl -X POST  localhost:9123/server --data '{"address":":8080","upstreams":[{"Target":"www.google.com","Port":80}]}'`
 
 2. View the server: `curl localhost:9123/server/:8080` 
 
