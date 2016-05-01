@@ -12,7 +12,7 @@ Balancer is a load-balancer for the Container age.
   automatically get nodes on services with Consul/Etcd/Zookeeper and docker-swarm
 - If an Upstream is down or give bad response, it use the fallback. (*)
 
-(*)to be completed.
+(*) to be completed.
 
 ```
  HTTP[s] requests 

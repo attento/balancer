@@ -3,8 +3,7 @@ package api
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/core"
-	"github.com/gin-gonic/gin"
+	"github.com/attento/balancer/app/core"
 	"net/http/httptest"
 	"net/http"
 	"bytes"
@@ -13,16 +12,13 @@ import (
 
 func TestOnUpstreamShouldResponse200(t *testing.T) {
 
-	r := gin.New()
-	routes(r)
-
-	cnf := core.Create()
-	cnf.AddUpstreamProperty(":8080", "127.0.0.1", 80, 1, 2)
-
-	core.InMemoryRepository.Put(cnf)
+	a,_,r,repo := createRepoAppAndRoutes()
+	serverUpstreamRoutes(r, a)
+	repo.NewServer(":8484")
+	repo.AddUpstream(":8484", &core.Upstream{"127.0.0.1", 80, 1, 2})
 
 	w := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/server/:8080/upstream/127.0.0.1-80", nil)
+	req, _ := http.NewRequest("GET", "/server/:8484/upstream/127.0.0.1-80", nil)
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, 200)
@@ -32,13 +28,10 @@ func TestOnUpstreamShouldResponse200(t *testing.T) {
 
 func TestOnUpstreamPostShouldResponse204(t *testing.T) {
 
-	r := gin.New()
-	routes(r)
+	a,_,r,repo := createRepoAppAndRoutes()
+	serverUpstreamRoutes(r, a)
 
-	cnf := core.Create()
-	cnf.AddUpstreamProperty(":8686", "127.0.0.1", 80, 1, 2)
-	core.InMemoryRepository.Put(cnf)
-
+	repo.NewServer(":8686")
 	w := httptest.NewRecorder()
 
 	var jsonStr = []byte(`{"Target":"127.0.0.1","Port":80,"Priority":1,"Weight":2}`)
@@ -48,18 +41,13 @@ func TestOnUpstreamPostShouldResponse204(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, 204)
-	assert.Equal(t, w.Body.String(), "null\n")
+	assert.Equal(t, w.Body.String(), "")
 }
 
 func TestOnUpstreamShouldResponse404(t *testing.T) {
 
-	r := gin.New()
-	routes(r)
-
-	cnf := core.Create()
-	cnf.AddUpstreamProperty(":8989", "127.0.0.1", 80, 1, 2)
-
-	core.InMemoryRepository.Put(cnf)
+	a,_,r,_ := createRepoAppAndRoutes()
+	serverUpstreamRoutes(r, a)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/server/:8989/upstream/127.0.0.1-81", nil)

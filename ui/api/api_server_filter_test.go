@@ -3,8 +3,7 @@ package api
 import (
 	"testing"
 	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/core"
-	"github.com/gin-gonic/gin"
+	"github.com/attento/balancer/app/core"
 	"net/http/httptest"
 	"net/http"
 	"bytes"
@@ -12,13 +11,11 @@ import (
 
 func TestOnFilterShouldResponse204(t *testing.T) {
 
-	r := gin.New()
-	routes(r)
+	a,_,r,repo := createRepoAppAndRoutes()
+	serverFilterRoutes(r, a)
 
-	cnf := core.Create()
 	f := core.Filter{Schemes: [2]string{"http"}}
-	cnf.PutFilter(core.Address(":8383"), f)
-	core.InMemoryRepository.Put(cnf)
+	repo.PutFilter(core.Address(":8383"), f)
 
 	w := httptest.NewRecorder()
 
@@ -29,6 +26,6 @@ func TestOnFilterShouldResponse204(t *testing.T) {
 	r.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, 204)
-	assert.Equal(t, w.Body.String(), "null\n")
+	assert.Equal(t, w.Body.String(), "")
 }
 

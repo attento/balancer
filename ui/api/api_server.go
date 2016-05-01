@@ -2,51 +2,44 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/core"
+	"github.com/attento/balancer/app/core"
 	"net/http"
 	"fmt"
 	"strconv"
 	"regexp"
+	"src/github.com/docker/swarm/Godeps/_workspace/src/github.com/Sirupsen/logrus"
 )
 
 type ApiV1server struct {
-	Address   core.Address  		     `json:"address"`
-	Filter    core.Filter		         `json:"filter"`
-	Upstreams  map[string]*core.Upstream `json:"upstreams"`
+	Address   core.Address     `json:"address"`
+	Filter    core.Filter	   `json:"filter"`
+	Upstreams []*core.Upstream `json:"upstreams"`
 }
 
-
 func ApiV1serverNew(srv *core.Server) ApiV1server {
+
 	return ApiV1server{
 		srv.Address(),
 		srv.Filter(),
-		srv.Upstreams(),
+		core.ConvertConfigUpstreamFromMap(srv.Upstreams()),
 	}
 }
 
-func apiServerGet(c *gin.Context) {
+func (a *Api) apiServerGet(c *gin.Context) {
 
 	var adr core.Address
 	var sent bool
 	if adr, sent = getAddressFromParam(c); sent {
 		return
 	}
-	cnf := core.InMemoryRepository.Get()
 
-	var srv *core.Server
-	var ok  bool
-
-	if srv, ok = cnf.Server(adr); !ok {
-		c.JSON(http.StatusNotFound, gin.H{
-			"message": fmt.Sprintf("Server %s not found.", adr),
-		})
-		return
+	srv, sent := a.getConfigServerOr404(c, adr)
+	if !sent {
+		c.JSON(http.StatusOK, ApiV1serverNew(srv))
 	}
-
-	c.JSON(http.StatusOK, ApiV1serverNew(srv))
 }
 
-func apiServerPost(c *gin.Context) {
+func (a *Api) apiServerPost(c *gin.Context) {
 
 	var v1Server ApiV1server
 	var err error
@@ -56,34 +49,26 @@ func apiServerPost(c *gin.Context) {
 		})
 	}
 
-	core.InMemoryRepository.NewServer(v1Server.Address)
-	core.InMemoryRepository.SetUpstreams(v1Server.Address, v1Server.Upstreams)
-	core.InMemoryRepository.PutFilter(v1Server.Address, v1Server.Filter)
+	a.app.StartHttpServer(v1Server.Address, v1Server.Filter, v1Server.Upstreams)
 	c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 	return
 }
 
-func apiServerDelete(c *gin.Context) {
+func (a *Api) apiServerDelete(c *gin.Context) {
 
 	var adr core.Address
 	var sent bool
 	if adr, sent = getAddressFromParam(c); sent {
 		return
 	}
-	cnf := core.InMemoryRepository.Get()
-
-	var ok  bool
-
-	if _, ok = cnf.Server(adr); !ok {
+	srv, sent := a.getConfigServerOr404(c, adr)
+	if !sent {
+		a.app.StopHttpServer(srv.Address(), a.DrainingTime())
 		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
-		return
 	}
 
-	core.InMemoryRepository.RemoveServer(adr)
-	c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 	return
 }
-
 
 func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bool) {
 
@@ -119,6 +104,27 @@ func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bo
 	}
 
 	return matches[1], uint16(port64), false
+}
+
+func (a *Api) getConfigServerOr404(c *gin.Context, adr core.Address) (srv *core.Server, sent bool) {
+	sent = true
+	srv, ok, err := a.app.ConfigServer(adr);
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": fmt.Sprintf("Error on ", adr),
+		})
+		logrus.Error("error 500 on",err, adr)
+		return
+	}
+
+	if !ok {
+		c.JSON(http.StatusNotFound, gin.H{
+			"message": fmt.Sprintf("Server %s not found.", adr),
+		})
+		return
+	}
+	sent = false
+	return
 }
 
 func getAddressFromParam(c *gin.Context) (adr core.Address, sent bool) {

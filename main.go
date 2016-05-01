@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/attento/balancer/cli"
+	"github.com/attento/balancer/ui"
 )
 
 func main() {
-	cli.Run()
+	ui.Run()
 }
