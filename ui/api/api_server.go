@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strconv"
 	"regexp"
-	"src/github.com/docker/swarm/Godeps/_workspace/src/github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 )
 
 type ApiV1server struct {
@@ -113,7 +113,7 @@ func (a *Api) getConfigServerOr404(c *gin.Context, adr core.Address) (srv *core.
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("Error on ", adr),
 		})
-		logrus.Error("error 500 on",err, adr)
+		log.Error("error 500 on",err, adr)
 		return
 	}
 
