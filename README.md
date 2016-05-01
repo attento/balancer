@@ -1,20 +1,26 @@
 balancer
 ========
 
-Balancer is a load-balancer for the Container age.
+Balancer is a load-balancer for the Container age, easy and battery included.
 
 ## Features:
 
 - Rest API to handle configuration.
 - Is Crazy fast.
-- Config watcher: push notification when the config file is changed, or the config on Consul/Etcd/Zookeeper is changed.
-- Work with Docker and Docker-Swarm (*)
-  automatically get nodes on services with Consul/Etcd/Zookeeper and docker-swarm
-- If an Upstream is down or give bad response, it use the fallback. (*)
-- Hot-reloading of configuration. 
+- Hot-reloading of configuration: filters and Upstreams. 
 - Graceful shutdown http connections and drain it before close connections.
+- Event system.
 
-(*) to be completed.
+Coming soon ...
+
+- HTTPS
+- Config watcher: push notification when the config file is changed, or the config on Consul/Etcd/Zookeeper is changed.
+- Work with Docker and Docker-Swarm 
+  automatically get nodes from services like Consul/Etcd/Zookeeper and docker-swarm
+- If an Upstream is down or give bad response, it use the fallback.
+- Fallback and Circuit breaker.
+- WebSocket.
+
 
 ```
  HTTP[s] requests 
@@ -39,22 +45,18 @@ Servers are available on port and filters
       "PathPrefix":""              // optional used to filter some routes
    },
    "upstreams":{  
-      [{ "Target":"127.0.0.1",
+     [
+       { 
+         "Target":"127.0.0.1",
          "Port":80,
          "Priority":1,             // optional
          "Weight":2                // optional
-      },
-      { "Target":"127.0.0.1",
-        "Port":8080
-       }]
-   },
-   "fallbacks":{
-     "127.0.0.1-80": { 
-       "Target":"127.0.0.1",
-       "Port":80,
-       "Priority":1,             // optional
-       "Weight":2                // optional
-     }
+       },
+       { 
+         "Target":"127.0.0.1",
+         "Port":8080
+        }
+     ]
    }
 }
 ```
@@ -101,6 +103,7 @@ Request body: `{"Target":"127.0.0.1","Port":8080,"Priority":1,"Weight":2}`
 - `GET /server/{address}/filter` Get the Server Filter
 
 - `POST|PUT /server/{address}/filter` Create or Update the filter
+
 
 Request body `{"Hosts":null,"Schemes":["",""],"PathPrefix":""}`
 
