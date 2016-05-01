@@ -11,6 +11,8 @@ Balancer is a load-balancer for the Container age.
 - Work with Docker and Docker-Swarm (*)
   automatically get nodes on services with Consul/Etcd/Zookeeper and docker-swarm
 - If an Upstream is down or give bad response, it use the fallback. (*)
+- Hot-reloading of configuration. 
+- Graceful shutdown http connections and drain it before close connections.
 
 (*) to be completed.
 

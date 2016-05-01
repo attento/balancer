@@ -38,6 +38,7 @@ func New(repo core.ConfigRepository, e events.Dispatcher) *daemon {
 	d.e.On(core.EventConfigServerCreated, d.onNewConfigServer)
 	d.e.On(core.EventHttpServerStopped, d.onHttpServerStopped)
 	d.e.On(core.EventHttpServerStoppedWithError, d.onHttpServerStoppedWithError)
+	d.e.On(core.EventConfigFilterUpdated, d.onConfigServerChangedFilter)
 
 	return d
 }
@@ -50,7 +51,6 @@ func NewStandardRepo(repo core.ConfigRepository) *daemon {
 	return New(repo, events.New())
 }
 
-
 func (d *daemon) Config() *core.Config {
 	cnf := d.repo.Get()
 	return &cnf
@@ -61,7 +61,6 @@ func (d *daemon) ConfigServer(a core.Address) (s *core.Server, ok bool, err erro
 	err = nil
 	return
 }
-
 
 // @todo updated filters change servers rr
 func (d *daemon) StartHttpServer(a core.Address, f core.Filter, us []*core.Upstream) error {
@@ -89,10 +88,22 @@ func (d *daemon) StopHttpServer(a core.Address, t time.Duration) error {
 
 func (d *daemon) PutConfigFilter(a core.Address, f core.Filter) error {
 	d.repo.PutFilter(a, f)
+	srv, ok := d.repo.Server(a)
+	if !ok {
+		return errors.New("problem updating filter")
+	}
+
+	d.e.Raise(core.EventConfigFilterUpdated, srv)
 	return nil
 }
 
 func (d *daemon) AddConfigUpstream(a core.Address, u *core.Upstream) error {
 	d.repo.AddUpstream(a, u)
+	srv, ok := d.repo.Server(a)
+	if !ok {
+		return errors.New("problem updating Upstream")
+	}
+
+	d.e.Raise(core.EventConfigUpstreamsUpdated, srv)
 	return nil
 }

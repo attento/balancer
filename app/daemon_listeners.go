@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/gorilla/mux"
 	"github.com/attento/balancer/app/core"
+	log "github.com/Sirupsen/logrus"
 )
 
 func (d *daemon) onNewConfigServer(s interface{}) error {
@@ -20,10 +21,32 @@ func (d *daemon) onHttpServerStoppedWithError(a interface{}) error {
 func (d *daemon) doOnNewConfigServer(s *core.Server) error {
 
 	rr := mux.NewRouter()
-	reverser := NewReverse(s.Address(), d.repo)
-	addFiltersOnRouter(rr, s, reverser)
+	rev, err := d.httpServers.createProxyIfNotExists(s.Address(), d.repo)
+	if err != nil {
+		return err
+	}
+	addFiltersOnRouter(rr, s, rev)
 
 	return d.httpServers.ListenAndServe(s.Address(), rr)
+}
+
+func (d *daemon) onConfigServerChangedFilter(s interface{}) error {
+	return d.doOnConfigServerChangedFilter(s.(*core.Server))
+}
+
+func (d *daemon) doOnConfigServerChangedFilter(s *core.Server) error {
+
+	rr := mux.NewRouter()
+
+	rev, err := d.httpServers.createProxyIfNotExists(s.Address(), d.repo)
+	if err != nil {
+		return err
+	}
+
+	addFiltersOnRouter(rr, s, rev)
+	log.Info("changed routes")
+
+	return d.httpServers.ChangeRoutes(s.Address(), rr)
 }
 
 func addFiltersOnRouter(rr *mux.Router, s *core.Server, r Reverser) {

@@ -12,7 +12,7 @@ import (
 
 type ApiV1server struct {
 	Address   core.Address     `json:"address"`
-	Filter    core.Filter	   `json:"filter"`
+	Filter    core.Filter       `json:"filter"`
 	Upstreams []*core.Upstream `json:"upstreams"`
 }
 
@@ -83,14 +83,14 @@ func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bo
 	r, err := regexp.Compile(`^(?P<Target>.+)-(?P<Port>\d+)$`) //65535
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprint("Error with \"upstream-port\"",upstream, err),
+			"message": fmt.Sprint("Error with \"upstream-port\"", upstream, err),
 		})
 		return target, port, true
 	}
 	matches := r.FindStringSubmatch(upstream)
 	if len(matches) != 3 {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": fmt.Sprint("Error with \"upstream-port\"",upstream, matches),
+			"message": fmt.Sprint("Error with \"upstream-port\"", upstream, matches),
 		})
 		return target, port, true
 	}
@@ -98,7 +98,7 @@ func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bo
 	port64, err = strconv.ParseUint(matches[2], 10, 16)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"message": "error converting port to uint16 "+matches[2],
+			"message": "error converting port to uint16 " + matches[2],
 		})
 		return target, port, true
 	}
@@ -111,9 +111,9 @@ func (a *Api) getConfigServerOr404(c *gin.Context, adr core.Address) (srv *core.
 	srv, ok, err := a.app.ConfigServer(adr);
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": fmt.Sprintf("Error on ", adr),
+			"message": fmt.Sprintf("Error on %s", adr),
 		})
-		log.Error("error 500 on",err, adr)
+		log.Error("error 500 on", err, adr)
 		return
 	}
 

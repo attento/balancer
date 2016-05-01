@@ -13,8 +13,9 @@ import (
 )
 
 type HttpServers struct {
-	servers map[core.Address]*graceful.Server
-	events  events.Dispatcher
+	servers  map[core.Address]*graceful.Server
+	events   events.Dispatcher
+	proxies map[core.Address]Reverser
 }
 
 type HttpServersHandler interface {
@@ -23,7 +24,11 @@ type HttpServersHandler interface {
 }
 
 func NewHttpServers(e events.Dispatcher) *HttpServers {
-	return &HttpServers{events: e, servers: make(map[core.Address]*graceful.Server)}
+	return &HttpServers{
+		events:  e,
+		servers: make(map[core.Address]*graceful.Server),
+		proxies: make(map[core.Address]Reverser),
+	}
 }
 
 func (s *HttpServers) Stop(a core.Address, t time.Duration) error {
@@ -31,6 +36,27 @@ func (s *HttpServers) Stop(a core.Address, t time.Duration) error {
 		log.Info("Stopping server")
 		s.servers[a].Stop(t)
 	}
+	return nil
+}
+
+func (s *HttpServers) createProxyIfNotExists(a core.Address, r core.ConfigRepository) (Reverser, error) {
+
+	if _, ok := s.proxies[a]; !ok {
+		s.proxies[a] = NewReverse(a, r)
+	}
+
+	return s.proxies[a], nil
+}
+
+func (s *HttpServers) ChangeRoutes(a core.Address, h http.Handler) error {
+
+	if _, ok := s.servers[a]; !ok {
+		// @todo check server status
+		log.Warn("Trying to change Routes on Server but it doens't exists...",a)
+		return nil
+	}
+	s.servers[a].Handler = h
+
 	return nil
 }
 
@@ -47,6 +73,7 @@ func (s *HttpServers) ListenAndServe(a core.Address, h http.Handler) error {
 			Handler: h,
 		},
 	}
+
 	s.events.Raise(core.EventHttpServerStarted, a)
 	err := s.servers[a].ListenAndServe()
 	if err != nil {
