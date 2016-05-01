@@ -1,7 +1,7 @@
 balancer
 ========
 
-Balancer is a load-balancer for the Container age, easy and battery included.
+[![Build Status](https://travis-ci.org/attento/balancer.svg?branch=master)](https://travis-ci.org/attento/balancer) Balancer is a load-balancer for the Container age, easy and battery included.
 
 ## Features:
 
@@ -17,8 +17,8 @@ Coming soon ...
 - Config watcher: push notification when the config file is changed, or the config on Consul/Etcd/Zookeeper is changed.
 - Work with Docker and Docker-Swarm 
   automatically get nodes from services like Consul/Etcd/Zookeeper and docker-swarm
-- If an Upstream is down or give bad response, it use the fallback.
 - Fallback and Circuit breaker.
+- Let's encrypt integration to privide automatic SSL services.
 - WebSocket.
 
 
