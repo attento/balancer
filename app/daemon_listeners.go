@@ -69,7 +69,7 @@ func addFiltersOnRouter(rr *mux.Router, s *core.Server, r Reverser) {
 func (d *daemon) doOnHttpServerStopped(a core.Address) error {
 
 	d.repo.RemoveServer(a)
-
+	delete(d.httpServers.proxies, a)
 	return nil
 }
 
@@ -78,7 +78,7 @@ func (d *daemon) doOnHttpServerStoppedWithError(a core.Address) error {
 	// @todo disable server
 	//d.repo.DisableServer(a)
 	d.repo.RemoveServer(a)
-
+	delete(d.httpServers.proxies, a)
 	return nil
 }
 

@@ -9,9 +9,20 @@ import (
 	"github.com/attento/balancer/app/core"
 	"github.com/liuggio/events"
 	"github.com/attento/balancer/app/repository"
+	"fmt"
 )
 
-func TestShouldHotSwapUpstream(t *testing.T) {
+
+type MyMockedReverser struct{
+   status int
+}
+
+func (r *MyMockedReverser) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	fmt.Fprint(w, "Yes")
+	w.WriteHeader(r.status)
+}
+
+func TestShouldHotSwapFilter(t *testing.T) {
 
 	errorHappened := false
 	errfn := func(err events.ListenerError) {errorHappened = true;}
@@ -20,7 +31,7 @@ func TestShouldHotSwapUpstream(t *testing.T) {
 	e.AddInMemoryEventRepo()
 
 	d := New(repository.NewInMemoryConfigRepository(), e)
-
+	d.httpServers.proxies[":8889"] = &MyMockedReverser{201}
 	upstreams := []*core.Upstream{&core.Upstream{"127.0.0.1", 8000, 1, 1}}
 
 	// asserting Event Stopped execution
@@ -28,14 +39,12 @@ func TestShouldHotSwapUpstream(t *testing.T) {
 	assert.Nil(t, start, start)
 	time.Sleep(2*time.Second)
 
-	// request on / shoul get 200
-
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
 	d.httpServers.servers[":8889"].Handler.ServeHTTP(w, req)
 
 	assert.Equal(t, w.Code, 200)
-	assert.NotEmpty(t, w.Body.String())
+	assert.Exactly(t, w.Body.String(),"Yes")
 
 	d.PutConfigFilter(":8889", core.Filter{PathPrefix:"/api",})
 	time.Sleep(2*time.Second)
@@ -52,7 +61,7 @@ func TestShouldHotSwapUpstream(t *testing.T) {
 	d.httpServers.servers[":8889"].Handler.ServeHTTP(w200, req3)
 
 	assert.Equal(t, w200.Code, 200)
-	assert.NotEmpty(t, w200.Body.String())
+	assert.Exactly(t, w.Body.String(),"Yes")
 
 	d.httpServers.Stop(":8889", 1*time.Second)
 	e.Wait()
