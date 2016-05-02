@@ -13,10 +13,6 @@ type Api struct {
 	drainingTime time.Duration
 }
 
-func New(d time.Duration) *Api {
-	return &Api{app.NewStandard(), d}
-}
-
 func NewWithApp(a app.DaemonInterface, d time.Duration) *Api {
 	return &Api{a, d}
 }
@@ -52,14 +48,13 @@ func serverFilterRoutes(r *gin.Engine, a *Api) {
 	r.PUT("/server/:address/filter", a.apiServerPostFilter)
 }
 
-func Run(addr string, isDebug bool) {
+func Run(daemon app.DaemonInterface, addr string, isDebug bool) {
 
 	if !isDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	a := New(3 * time.Second)
-
+	a := &Api{daemon, 3 * time.Second}
 	r := gin.Default()
 
 	configRoutes(r, a)

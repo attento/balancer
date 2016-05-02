@@ -9,7 +9,13 @@ import (
 	"github.com/attento/balancer/app/core"
 )
 
-type configuration []core.Server
+type ServerConfig struct {
+	Address   core.Address     `json:"address"`
+	Filter    core.Filter      `json:"filter"`
+	Upstreams []*core.Upstream `json:"upstreams"`
+}
+
+type configuration []ServerConfig
 
 type FileExtractor struct {
 	Daemon app.DaemonInterface
@@ -27,11 +33,7 @@ func (e *FileExtractor) Extract() error {
 		return err
 	}
 	for _, s := range c {
-		var upstreams []*core.Upstream
-		for _, u := range s.Upstreams {
-			upstreams = append(upstreams, u)
-		}
-		e.Daemon.StartHttpServer(s.Address, s.Filter, upstreams)
+		e.Daemon.StartHttpServer(s.Address, s.Filter, s.Upstreams)
 	}
 	return nil
 }

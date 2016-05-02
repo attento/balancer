@@ -28,9 +28,23 @@ func TestExtractWrongFile(t *testing.T) {
 	assert.EqualError(t, err, "unable to open file")
 }
 
-func TestConfigServer(t *testing.T) {
+func TestConfigServerWithOnlyAddress(t *testing.T) {
 	file, _ := ioutil.TempFile(os.TempDir(), "prefix")
 	d1 := []byte("[{\"address\":\":80\"}]")
+	ioutil.WriteFile(file.Name(), d1, 0644)
+	defer os.Remove(file.Name())
+	d := MyDaemonMock{}
+	extractor := FileExtractor{
+		Daemon: &d,
+		Path:   file.Name(),
+	}
+	err := extractor.Extract()
+	assert.Equal(t, err, nil)
+}
+
+func TestConfigCompleteServer(t *testing.T) {
+	file, _ := ioutil.TempFile(os.TempDir(), "prefix")
+	d1 := []byte("[{\"address\":\":8080\",\"upstreams\":[{\"Target\":\"www.google.com\",\"Port\":80}]}]")
 	ioutil.WriteFile(file.Name(), d1, 0644)
 	defer os.Remove(file.Name())
 	d := MyDaemonMock{}
