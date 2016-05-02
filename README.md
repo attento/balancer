@@ -1,7 +1,9 @@
 balancer
 ========
 
-[![Build Status](https://travis-ci.org/attento/balancer.svg?branch=master)](https://travis-ci.org/attento/balancer) Balancer is a load-balancer for the Container age, easy and battery included.
+[![Build Status](https://travis-ci.org/attento/balancer.svg?branch=master)](https://travis-ci.org/attento/balancer) 
+
+Balancer is a load-balancer for the Container age, easy and battery included.
 
 ## Features:
 
