@@ -2,9 +2,9 @@ package repository
 
 import (
 	"sync"
+
 	"github.com/attento/balancer/app/core"
 )
-
 
 type InMemoryConfigRepository struct {
 	sync.RWMutex
@@ -23,14 +23,14 @@ func (r *InMemoryConfigRepository) Init() {
 	}
 }
 
-func (r *InMemoryConfigRepository) Get() core.Config{
+func (r *InMemoryConfigRepository) Get() core.Config {
 	r.Init()
 	r.RLock()
 	defer r.RUnlock()
 	return r.c
 }
 
-func (r *InMemoryConfigRepository) Put(c core.Config){
+func (r *InMemoryConfigRepository) Put(c core.Config) {
 	r.Init()
 	r.Lock()
 	r.c = c

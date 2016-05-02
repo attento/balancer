@@ -2,6 +2,7 @@ package core
 
 import (
 	"testing"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +13,7 @@ func TestShouldCreateAServerAndAFilter(t *testing.T) {
 	cnf := Create()
 	cnf.PutFilterProperties(":8080", []string{"www.google.com"}, [2]string{"http"}, "")
 
-	assert.Exactly(t, cnf.servers[":8080"].Filter(), assertFilter)
+	assert.Exactly(t, cnf.servers[":8080"].Filter, assertFilter)
 }
 
 func TestShouldCreateAndRemoveAServerAndAnUpstream(t *testing.T) {

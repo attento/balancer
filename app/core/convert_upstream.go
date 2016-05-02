@@ -1,6 +1,6 @@
 package core
-import "fmt"
 
+import "fmt"
 
 func ConvertConfigUpstreamToMap(us []*Upstream) (usMap map[string]*Upstream) {
 
@@ -13,7 +13,7 @@ func ConvertConfigUpstreamToMap(us []*Upstream) (usMap map[string]*Upstream) {
 	return usMap
 }
 
-func ConvertConfigUpstreamFromMap(usMap map[string]*Upstream) (us []*Upstream)  {
+func ConvertConfigUpstreamFromMap(usMap map[string]*Upstream) (us []*Upstream) {
 
 	us = []*Upstream{}
 

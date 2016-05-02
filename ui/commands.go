@@ -8,9 +8,14 @@ var (
 			Name:      "run",
 			ShortName: "r",
 			Usage:     "Run the balancer daemon",
-			//Flags: []cli.Flag{flHeartBeat,flTTL,flDiscoveryOpt},
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "exporter, e",
+					Value: "none",
+					Usage: "Exporter",
+				},
+			},
 			Action: run,
 		},
 	}
 )
-

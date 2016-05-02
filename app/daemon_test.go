@@ -2,26 +2,27 @@ package app
 
 import (
 	"net"
-	"time"
 	"testing"
-	"github.com/stretchr/testify/assert"
+	"time"
+
 	"github.com/attento/balancer/app/core"
-	"github.com/liuggio/events"
 	"github.com/attento/balancer/app/repository"
+	"github.com/liuggio/events"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestWhenAServerHasBeenCreated(t *testing.T) {
 
 	errorHappened := false
-	errfn := func(err events.ListenerError) {errorHappened = true;}
+	errfn := func(err events.ListenerError) { errorHappened = true }
 
 	e := events.NewWithErrListener(errfn)
 	e.AddInMemoryEventRepo()
 
 	d := &daemon{
 		httpServers: NewHttpServers(e),
-		repo: repository.NewInMemoryConfigRepository(),
-		e: e,
+		repo:        repository.NewInMemoryConfigRepository(),
+		e:           e,
 	}
 
 	upstreams := []*core.Upstream{&core.Upstream{"127.0.0.1", 90, 1, 1}}
@@ -35,7 +36,7 @@ func TestWhenAServerHasBeenCreated(t *testing.T) {
 func TestFunctionalAServerHasBeenCreatedAndStartStopHttpServer(t *testing.T) {
 
 	errorHappened := false
-	errfn := func(err events.ListenerError) {errorHappened = true;}
+	errfn := func(err events.ListenerError) { errorHappened = true }
 
 	e := events.NewWithErrListener(errfn)
 	e.AddInMemoryEventRepo()
@@ -46,7 +47,7 @@ func TestFunctionalAServerHasBeenCreatedAndStartStopHttpServer(t *testing.T) {
 
 	start := d.StartHttpServer(":8080", core.Filter{}, upstreams)
 	assert.Nil(t, start, start)
-	time.Sleep(2*time.Second)
+	time.Sleep(2 * time.Second)
 	d.httpServers.Stop(":8080", 1*time.Second)
 	e.Wait()
 	assert.True(t, true)
@@ -60,7 +61,7 @@ func TestFunctionalAServerHasBeenCreatedAndStartStopHttpServer(t *testing.T) {
 func TestFunctionalAServerHasBeenCreatedAndStartOnBindPortHttpServer(t *testing.T) {
 
 	errorHappened := false
-	errfn := func(err events.ListenerError) {errorHappened = true;}
+	errfn := func(err events.ListenerError) { errorHappened = true }
 
 	e := events.NewWithErrListener(errfn)
 	e.AddInMemoryEventRepo()
@@ -76,7 +77,7 @@ func TestFunctionalAServerHasBeenCreatedAndStartOnBindPortHttpServer(t *testing.
 	// asserting Event Stopped execution
 	start := d.StartHttpServer(":8889", core.Filter{}, upstreams)
 	assert.Nil(t, start, start)
-	time.Sleep(2*time.Second)
+	time.Sleep(2 * time.Second)
 	l.Close()
 	d.httpServers.Stop(":8080", 1*time.Second)
 	e.Wait()
@@ -84,5 +85,4 @@ func TestFunctionalAServerHasBeenCreatedAndStartOnBindPortHttpServer(t *testing.
 	assert.True(t, e.GetEventRepo().Contains(core.EventConfigServerCreated))
 	assert.True(t, e.GetEventRepo().Contains(core.EventHttpServerStarted))
 	assert.True(t, e.GetEventRepo().Contains(core.EventHttpServerStoppedWithError))
-
 }

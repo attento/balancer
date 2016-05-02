@@ -1,17 +1,18 @@
 package api
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/app/core"
-	"net/http/httptest"
+	"bytes"
 	"net/http"
- 	"bytes"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/attento/balancer/app/core"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetServerShouldResponse200(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverRoutes(r, a)
 	repo.NewServer(":8484")
 	repo.AddUpstream(":8484", &core.Upstream{"127.0.0.1", 80, 1, 2})
@@ -26,7 +27,7 @@ func TestGetServerShouldResponse200(t *testing.T) {
 
 func TestShouldResponse404(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverRoutes(r, a)
 	repo.NewServer(":8484")
 	repo.AddUpstream(":8484", &core.Upstream{"127.0.0.1", 80, 1, 2})
@@ -38,10 +39,9 @@ func TestShouldResponse404(t *testing.T) {
 	assert.Equal(t, w.Code, 404)
 }
 
-
 func TestOnPostShouldResponse204(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverRoutes(r, a)
 
 	var jsonStr = []byte(`{"address":":8484","filter":{"Hosts":["www.website.com"],"Schemes":["",""],"PathPrefix":""},"upstreams":[{"Target":"127.0.0.1","Port":80,"Priority":1,"Weight":2}]}`)
@@ -56,5 +56,5 @@ func TestOnPostShouldResponse204(t *testing.T) {
 	cnf := repo.Get()
 	srv, ok := cnf.Server(":8484")
 	assert.True(t, ok)
-	assert.Exactly(t, srv.Filter().Hosts, []string{"www.website.com"})
+	assert.Exactly(t, srv.Filter.Hosts, []string{"www.website.com"})
 }

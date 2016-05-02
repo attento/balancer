@@ -1,9 +1,10 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/app/core"
 	"net/http"
+
+	"github.com/attento/balancer/app/core"
+	"github.com/gin-gonic/gin"
 )
 
 type ApiV1Config struct {

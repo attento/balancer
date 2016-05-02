@@ -1,10 +1,11 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/app/core"
-	"net/http"
 	"fmt"
+	"net/http"
+
+	"github.com/attento/balancer/app/core"
+	"github.com/gin-gonic/gin"
 )
 
 func (a *Api) apiServerGetFilter(c *gin.Context) {
@@ -17,7 +18,7 @@ func (a *Api) apiServerGetFilter(c *gin.Context) {
 
 	srv, sent := a.getConfigServerOr404(c, adr)
 	if !sent {
-		c.JSON(http.StatusOK, srv.Filter())
+		c.JSON(http.StatusOK, srv.Filter)
 	}
 }
 

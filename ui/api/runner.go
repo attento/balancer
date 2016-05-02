@@ -1,30 +1,25 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/app"
 	"time"
+
 	log "github.com/Sirupsen/logrus"
+	"github.com/attento/balancer/app"
+	"github.com/gin-gonic/gin"
 )
 
 type Api struct {
-	app app.DaemonInterface
+	app          app.DaemonInterface
 	drainingTime time.Duration
-}
-
-func New(d time.Duration) *Api {
-	return &Api{app.NewStandard(), d}
 }
 
 func NewWithApp(a app.DaemonInterface, d time.Duration) *Api {
 	return &Api{a, d}
 }
 
-
 func (a *Api) DrainingTime() time.Duration {
 	return a.drainingTime
 }
-
 
 func configRoutes(r *gin.Engine, a *Api) {
 	r.GET("/", a.apiConfigGet)
@@ -53,14 +48,13 @@ func serverFilterRoutes(r *gin.Engine, a *Api) {
 	r.PUT("/server/:address/filter", a.apiServerPostFilter)
 }
 
-func Run(addr string, isDebug bool) {
+func Run(daemon app.DaemonInterface, addr string, isDebug bool) {
 
 	if !isDebug {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	a := New(3*time.Second)
-
+	a := &Api{daemon, 3 * time.Second}
 	r := gin.Default()
 
 	configRoutes(r, a)

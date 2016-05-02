@@ -2,8 +2,9 @@ package repository
 
 import (
 	"testing"
-	"github.com/stretchr/testify/assert"
+
 	"github.com/attento/balancer/app/core"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInMemoryRepositoryShouldPutAndGet(t *testing.T) {
@@ -16,5 +17,5 @@ func TestInMemoryRepositoryShouldPutAndGet(t *testing.T) {
 	repo.Put(cnf)
 	cnfg := repo.Get()
 	s, _ := cnfg.Server(":8080")
-	assert.Exactly(t, s.Filter(), assertFilter)
+	assert.Exactly(t, s.Filter, assertFilter)
 }

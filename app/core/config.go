@@ -1,9 +1,9 @@
 package core
 
 import (
-	"strconv"
-	"net/url"
 	"fmt"
+	"net/url"
+	"strconv"
 )
 
 type Upstream struct {
@@ -13,15 +13,15 @@ type Upstream struct {
 	Weight   uint16
 }
 
-const(
-	EventConfigServerCreated      string = "cnf-srv-created"
+const (
+	EventConfigServerCreated string = "cnf-srv-created"
 
-	EventHttpServerStarted        string = "http-srv-started"
-	EventHttpServerStopped        string = "http-srv-stopped"
+	EventHttpServerStarted          string = "http-srv-started"
+	EventHttpServerStopped          string = "http-srv-stopped"
 	EventHttpServerStoppedWithError string = "http-srv-stopped-err"
 
-	EventConfigUpstreamsUpdated   string = "ups-updated"
-	EventConfigFilterUpdated      string = "flt-updated"
+	EventConfigUpstreamsUpdated string = "ups-updated"
+	EventConfigFilterUpdated    string = "flt-updated"
 )
 
 func (u *Upstream) ToUrl(scheme string) (url *url.URL, err error) {
@@ -30,7 +30,7 @@ func (u *Upstream) ToUrl(scheme string) (url *url.URL, err error) {
 		scheme = "http"
 	}
 
-	return url.Parse(scheme+"://"+u.Target+":"+ strconv.Itoa(int(u.Port)))
+	return url.Parse(scheme + "://" + u.Target + ":" + strconv.Itoa(int(u.Port)))
 }
 
 type Filter struct {
@@ -40,77 +40,61 @@ type Filter struct {
 }
 
 type Server struct {
-	address   Address
-	filter    Filter
-	upstreams  map[string]*Upstream
+	Address   Address              `json:"address"`
+	Filter    Filter               `json:"filter"`
+	Upstreams map[string]*Upstream `json:"upstreams"`
 }
 
 func newServer(a Address) *Server {
-	return &Server{address: a}
-}
-
-func (s *Server) Address() Address {
-	return s.address
-}
-
-func (s *Server) Upstreams() map[string]*Upstream {
-	return s.upstreams
-}
-
-func (s *Server) Filter() Filter {
-	return s.filter
-}
-
-func (s *Server) putFilter(f Filter) {
-	s.filter = f
+	return &Server{Address: a}
 }
 
 func (s *Server) Upstream(target string, port uint16) (k *Upstream, ok bool) {
-	k, ok = s.upstreams[CreateUpstreamKey(target, port)]
+	k, ok = s.Upstreams[CreateUpstreamKey(target, port)]
 	return
 }
 
 func (s *Server) addUpstreamProperty(target string, port uint16, priority uint16, weight uint16) {
 
-	if s.upstreams == nil {
-		s.upstreams = make(map[string]*Upstream)
+	if s.Upstreams == nil {
+		s.Upstreams = make(map[string]*Upstream)
 	}
 
-	s.upstreams[CreateUpstreamKey(target, port)] = &Upstream{target, port, priority, weight}
+	s.Upstreams[CreateUpstreamKey(target, port)] = &Upstream{target, port, priority, weight}
 }
 
 func (s *Server) addUpstream(u *Upstream) {
 
-	if s.upstreams == nil {
-		s.upstreams = make(map[string]*Upstream)
+	if s.Upstreams == nil {
+		s.Upstreams = make(map[string]*Upstream)
 	}
 
-	s.upstreams[CreateUpstreamKey(u.Target, u.Port)] = u
+	s.Upstreams[CreateUpstreamKey(u.Target, u.Port)] = u
 }
 
 func (s *Server) setUpstreams(us map[string]*Upstream) {
 
-	if s.upstreams == nil {
-		s.upstreams = make(map[string]*Upstream)
+	if s.Upstreams == nil {
+		s.Upstreams = make(map[string]*Upstream)
 	}
 
-	s.upstreams = us
+	s.Upstreams = us
 }
 
 func (s *Server) removeUpstream(target string, port uint16) {
 	if _, ok := s.Upstream(target, port); ok {
-		delete(s.upstreams, CreateUpstreamKey(target, port))
+		delete(s.Upstreams, CreateUpstreamKey(target, port))
 	}
 }
 
-type Address string        // ":80" golang address spec.
+type Address string // ":80" golang address spec.
 
 type Config struct {
 	servers map[Address]*Server
 }
 
 func Create() Config {
-	return Config{servers: make(map[Address]*Server),}
+	return Config{servers: make(map[Address]*Server)}
 }
 
 func (c Config) NewServer(a Address) bool {
@@ -135,7 +119,7 @@ func (c Config) PutFilter(address Address, f Filter) {
 	if _, ok := c.servers[address]; !ok {
 		c.NewServer(address)
 	}
-	c.servers[address].putFilter(f)
+	c.servers[address].Filter = f
 }
 
 func (c Config) RemoveServer(address Address) {
@@ -172,11 +156,11 @@ func (c Config) SetUpstreams(address Address, us map[string]*Upstream) {
 }
 
 func (c Config) Servers() map[Address]*Server {
-	return c.servers;
+	return c.servers
 }
 
-func (c Config) Server(address Address) (s *Server, ok bool){
-	s, ok = c.servers[address];
+func (c Config) Server(address Address) (s *Server, ok bool) {
+	s, ok = c.servers[address]
 	return
 }
 

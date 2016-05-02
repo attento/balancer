@@ -1,17 +1,18 @@
 package api
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/app/core"
-	"net/http/httptest"
-	"net/http"
 	"bytes"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+
+	"github.com/attento/balancer/app/core"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestOnFilterShouldResponse204(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverFilterRoutes(r, a)
 
 	f := core.Filter{Schemes: [2]string{"http"}}
@@ -28,4 +29,3 @@ func TestOnFilterShouldResponse204(t *testing.T) {
 	assert.Equal(t, w.Code, 204)
 	assert.Equal(t, w.Body.String(), "")
 }
-

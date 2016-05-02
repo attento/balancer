@@ -1,17 +1,18 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"net/http"
 	"fmt"
+	"net/http"
+
 	"github.com/attento/balancer/app/core"
+	"github.com/gin-gonic/gin"
 )
 
 func (a *Api) apiServerGetUpstream(c *gin.Context) {
 
 	var adr core.Address
 	var us *core.Upstream
-	var sent,ok bool
+	var sent, ok bool
 	var srv *core.Server
 
 	adr, sent = getAddressFromParam(c)
@@ -40,8 +41,6 @@ func (a *Api) apiServerGetUpstream(c *gin.Context) {
 	c.JSON(http.StatusOK, us)
 }
 
-
-
 func (a *Api) apiServerPostUpstream(c *gin.Context) {
 
 	var adr core.Address
@@ -58,9 +57,8 @@ func (a *Api) apiServerPostUpstream(c *gin.Context) {
 		return
 	}
 
-
 	if err = c.BindJSON(&bdUps); err == nil {
-		a.app.AddConfigUpstream(srv.Address(), bdUps)
+		a.app.AddConfigUpstream(srv.Address, bdUps)
 		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 		return
 	}
