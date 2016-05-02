@@ -1,9 +1,9 @@
 package app
 
 import (
-	"github.com/gorilla/mux"
-	"github.com/attento/balancer/app/core"
 	log "github.com/Sirupsen/logrus"
+	"github.com/attento/balancer/app/core"
+	"github.com/gorilla/mux"
 )
 
 func (d *daemon) onNewConfigServer(s interface{}) error {
@@ -21,13 +21,13 @@ func (d *daemon) onHttpServerStoppedWithError(a interface{}) error {
 func (d *daemon) doOnNewConfigServer(s *core.Server) error {
 
 	rr := mux.NewRouter()
-	rev, err := d.httpServers.createProxyIfNotExists(s.Address(), d.repo)
+	rev, err := d.httpServers.createProxyIfNotExists(s.Address, d.repo)
 	if err != nil {
 		return err
 	}
 	addFiltersOnRouter(rr, s, rev)
 
-	return d.httpServers.ListenAndServe(s.Address(), rr)
+	return d.httpServers.ListenAndServe(s.Address, rr)
 }
 
 func (d *daemon) onConfigServerChangedFilter(s interface{}) error {
@@ -38,7 +38,7 @@ func (d *daemon) doOnConfigServerChangedFilter(s *core.Server) error {
 
 	rr := mux.NewRouter()
 
-	rev, err := d.httpServers.createProxyIfNotExists(s.Address(), d.repo)
+	rev, err := d.httpServers.createProxyIfNotExists(s.Address, d.repo)
 	if err != nil {
 		return err
 	}
@@ -46,20 +46,20 @@ func (d *daemon) doOnConfigServerChangedFilter(s *core.Server) error {
 	addFiltersOnRouter(rr, s, rev)
 	log.Info("changed routes")
 
-	return d.httpServers.ChangeRoutes(s.Address(), rr)
+	return d.httpServers.ChangeRoutes(s.Address, rr)
 }
 
 func addFiltersOnRouter(rr *mux.Router, s *core.Server, r Reverser) {
 
 	var rs *mux.Router
 
-	if "" != s.Filter().PathPrefix {
-		rs = rr.PathPrefix(s.Filter().PathPrefix).Subrouter()
+	if "" != s.Filter.PathPrefix {
+		rs = rr.PathPrefix(s.Filter.PathPrefix).Subrouter()
 	}
 
 	if rs != nil {
 		addHosts(rs, s, r)
-	}else {
+	} else {
 		addHosts(rr, s, r)
 	}
 

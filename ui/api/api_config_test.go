@@ -1,15 +1,16 @@
 package api
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/app/core"
-	"github.com/gin-gonic/gin"
-	"net/http/httptest"
 	"net/http"
+	"net/http/httptest"
+	"testing"
 	"time"
-	"github.com/attento/balancer/app/repository"
+
 	"github.com/attento/balancer/app"
+	"github.com/attento/balancer/app/core"
+	"github.com/attento/balancer/app/repository"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
 )
 
 func createRepoAppAndRoutes() (*Api, app.DaemonInterface, *gin.Engine, core.ConfigRepository) {
@@ -18,16 +19,15 @@ func createRepoAppAndRoutes() (*Api, app.DaemonInterface, *gin.Engine, core.Conf
 	a := NewWithApp(d, 1*time.Second)
 	r := gin.New()
 
-	return a,d,r,repo
+	return a, d, r, repo
 }
 
 func TestConfigShouldResponse200(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	configRoutes(r, a)
 
 	repo.AddUpstream(":8080", &core.Upstream{"127.0.0.1", 8080, 1, 2})
-
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/", nil)
@@ -39,8 +39,7 @@ func TestConfigShouldResponse200(t *testing.T) {
 
 func TestConfigShouldNeverResponse404(t *testing.T) {
 
-
-	a,_,r,_ := createRepoAppAndRoutes()
+	a, _, r, _ := createRepoAppAndRoutes()
 	configRoutes(r, a)
 
 	w := httptest.NewRecorder()

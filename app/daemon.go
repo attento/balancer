@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/liuggio/events"
 	"github.com/attento/balancer/app/core"
 	"github.com/attento/balancer/app/repository"
+	"github.com/liuggio/events"
 )
 
 type DaemonInterface interface {
@@ -31,8 +31,8 @@ func New(repo core.ConfigRepository, e events.Dispatcher) *daemon {
 
 	d := &daemon{
 		httpServers: NewHttpServers(e),
-		repo: repo,
-		e: e,
+		repo:        repo,
+		e:           e,
 	}
 
 	d.e.On(core.EventConfigServerCreated, d.onNewConfigServer)

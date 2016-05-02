@@ -1,27 +1,28 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/app/core"
-	"net/http"
 	"fmt"
-	"strconv"
+	"net/http"
 	"regexp"
+	"strconv"
+
 	log "github.com/Sirupsen/logrus"
+	"github.com/attento/balancer/app/core"
+	"github.com/gin-gonic/gin"
 )
 
 type ApiV1server struct {
 	Address   core.Address     `json:"address"`
-	Filter    core.Filter       `json:"filter"`
+	Filter    core.Filter      `json:"filter"`
 	Upstreams []*core.Upstream `json:"upstreams"`
 }
 
 func ApiV1serverNew(srv *core.Server) ApiV1server {
 
 	return ApiV1server{
-		srv.Address(),
-		srv.Filter(),
-		core.ConvertConfigUpstreamFromMap(srv.Upstreams()),
+		srv.Address,
+		srv.Filter,
+		core.ConvertConfigUpstreamFromMap(srv.Upstreams),
 	}
 }
 
@@ -63,7 +64,7 @@ func (a *Api) apiServerDelete(c *gin.Context) {
 	}
 	srv, sent := a.getConfigServerOr404(c, adr)
 	if !sent {
-		a.app.StopHttpServer(srv.Address(), a.DrainingTime())
+		a.app.StopHttpServer(srv.Address, a.DrainingTime())
 		c.Data(http.StatusNoContent, gin.MIMEJSON, nil)
 	}
 
@@ -108,7 +109,7 @@ func getTargetPortFromParam(c *gin.Context) (target string, port uint16, sent bo
 
 func (a *Api) getConfigServerOr404(c *gin.Context, adr core.Address) (srv *core.Server, sent bool) {
 	sent = true
-	srv, ok, err := a.app.ConfigServer(adr);
+	srv, ok, err := a.app.ConfigServer(adr)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": fmt.Sprintf("Error on %s", adr),

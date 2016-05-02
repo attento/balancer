@@ -3,22 +3,23 @@ package app
 import (
 	"net/http"
 	"net/http/httputil"
+
 	log "github.com/Sirupsen/logrus"
 
 	"github.com/attento/balancer/app/core"
 )
 
-type Reverser interface  {
+type Reverser interface {
 	ServeHTTP(w http.ResponseWriter, req *http.Request)
 }
 
 type reverse struct {
-	a core.Address
+	a    core.Address
 	repo core.ConfigRepository
 }
 
-func NewReverse(a core.Address, r core.ConfigRepository) *reverse{
-	return &reverse{a,r}
+func NewReverse(a core.Address, r core.ConfigRepository) *reverse {
+	return &reverse{a, r}
 }
 
 // @todo Raise Event NewRequestProxied(r, upstream)
@@ -31,17 +32,17 @@ func (r *reverse) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 	if !ok {
 		log.WithFields(log.Fields{
-			"where":  "reverse",
-			"who":  "server",
+			"where": "reverse",
+			"who":   "server",
 		}).Info("error server doesn't exist")
-		return;
+		return
 	}
 	// IoC get ElectionFunc
 	upstream, err := s.Elect(core.RoundRobin)
 	if nil != err {
 		log.WithFields(log.Fields{
-			"where":  "reverse",
-			"who":  "backend",
+			"where": "reverse",
+			"who":   "backend",
 		}).Error("error electing upstream", err)
 
 		return
@@ -51,15 +52,15 @@ func (r *reverse) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 
 func doReverseProxy(u *core.Upstream, w http.ResponseWriter, req *http.Request) {
 	log.WithFields(log.Fields{
-		"req":  req,
+		"req":      req,
 		"upstream": u,
 	}).Info("request:", req.RequestURI, req.Host, req.Proto)
 
 	url, err := u.ToUrl(req.URL.Scheme)
 	if nil != err {
 		log.WithFields(log.Fields{
-			"where":  "reverse",
-			"who":  "parsing",
+			"where": "reverse",
+			"who":   "parsing",
 		}).Error("Impossible to parse", err)
 		return
 	}

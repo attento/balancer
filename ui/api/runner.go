@@ -1,14 +1,15 @@
 package api
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/attento/balancer/app"
 	"time"
+
 	log "github.com/Sirupsen/logrus"
+	"github.com/attento/balancer/app"
+	"github.com/gin-gonic/gin"
 )
 
 type Api struct {
-	app app.DaemonInterface
+	app          app.DaemonInterface
 	drainingTime time.Duration
 }
 
@@ -20,11 +21,9 @@ func NewWithApp(a app.DaemonInterface, d time.Duration) *Api {
 	return &Api{a, d}
 }
 
-
 func (a *Api) DrainingTime() time.Duration {
 	return a.drainingTime
 }
-
 
 func configRoutes(r *gin.Engine, a *Api) {
 	r.GET("/", a.apiConfigGet)
@@ -59,7 +58,7 @@ func Run(addr string, isDebug bool) {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	a := New(3*time.Second)
+	a := New(3 * time.Second)
 
 	r := gin.Default()
 

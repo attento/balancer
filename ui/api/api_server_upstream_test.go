@@ -1,18 +1,18 @@
 package api
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/attento/balancer/app/core"
-	"net/http/httptest"
-	"net/http"
 	"bytes"
-)
+	"net/http"
+	"net/http/httptest"
+	"testing"
 
+	"github.com/attento/balancer/app/core"
+	"github.com/stretchr/testify/assert"
+)
 
 func TestOnUpstreamShouldResponse200(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverUpstreamRoutes(r, a)
 	repo.NewServer(":8484")
 	repo.AddUpstream(":8484", &core.Upstream{"127.0.0.1", 80, 1, 2})
@@ -25,10 +25,9 @@ func TestOnUpstreamShouldResponse200(t *testing.T) {
 	assert.Equal(t, w.Body.String(), "{\"Target\":\"127.0.0.1\",\"Port\":80,\"Priority\":1,\"Weight\":2}\n")
 }
 
-
 func TestOnUpstreamPostShouldResponse204(t *testing.T) {
 
-	a,_,r,repo := createRepoAppAndRoutes()
+	a, _, r, repo := createRepoAppAndRoutes()
 	serverUpstreamRoutes(r, a)
 
 	repo.NewServer(":8686")
@@ -46,7 +45,7 @@ func TestOnUpstreamPostShouldResponse204(t *testing.T) {
 
 func TestOnUpstreamShouldResponse404(t *testing.T) {
 
-	a,_,r,_ := createRepoAppAndRoutes()
+	a, _, r, _ := createRepoAppAndRoutes()
 	serverUpstreamRoutes(r, a)
 
 	w := httptest.NewRecorder()
